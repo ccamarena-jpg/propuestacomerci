@@ -35,6 +35,8 @@
   .slide.active > *:nth-child(2) { animation-delay: .07s; }
   .slide.active > *:nth-child(3) { animation-delay: .14s; }
   .slide.active > *:nth-child(4) { animation-delay: .21s; }
+  /* Slides 4, 5 y 7: el contenido entra como una sola composición. */
+  #s1.active > *, #s1b.active > *, #s5.active > * { animation: none; }
   @keyframes slideIn { from { opacity:0; transform:scale(.992); } to { opacity:1; transform:scale(1); } }
   @keyframes contentUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .slide.active, .slide.active > * { animation:none; } }
@@ -157,6 +159,10 @@
   #s5 .legend-item { opacity:.24; transition:opacity .35s ease, transform .35s ease; transform:translateY(3px); }
   #s5[data-stage="1"] .legend-item:first-child,
   #s5[data-stage="2"] .legend-item { opacity:1; transform:translateY(0); }
+  #s5 svg .chart-area { opacity:.25; }
+  #s5 svg .chart-line { stroke-dashoffset:0; }
+  #s5 svg .chart-dot { opacity:1; transform:scale(1); }
+  #s5 .legend-item { opacity:1; transform:translateY(0); transition:none; }
   @keyframes drawLine { to { stroke-dashoffset:0; } }
   @keyframes areaReveal { from { opacity:0; } to { opacity:.25; } }
   @keyframes dotPop { from { opacity:0; transform:scale(0); } to { opacity:1; transform:scale(1); } }
@@ -410,7 +416,7 @@
 
     <p class="footer-page" style="color:#B58A5E">03</p>
   </section>
-  <section id="s1" class="slide product-reveal" data-reveal-count="0" style="cursor:pointer;">
+  <section id="s1" class="slide">
     <div>
       <p class="eyebrow">Portafolio Palmera</p>
       <h1 style="font-size:88px">Productos codificados</h1>
@@ -435,7 +441,7 @@
     </div>
     <p class="footer-page" style="color:#FFD9AD">04</p>
   </section>
-  <section id="s1b" class="slide product-reveal" data-reveal-count="0" style="cursor:pointer;">
+  <section id="s1b" class="slide">
     <div>
       <p class="eyebrow">Portafolio Palmera</p>
       <h1 style="font-size:88px">Productos no codificados</h1>
@@ -512,7 +518,7 @@
     <p class="footer-page" style="color:#7A6650">06</p>
   </section>
 
-  <section id="s5" class="slide" data-stage="0" style="align-items:center; cursor:pointer;">
+  <section id="s5" class="slide" style="align-items:center;">
     <h2 style="align-self:flex-start;">¿Qué nos prepara el 2026–2027?</h2>
     <p class="sub" style="align-self:flex-start;">Con el "Súper Niño" las anomalías climáticas llegan antes, duran más y se van más lento que en 2023.</p>
 
@@ -896,13 +902,6 @@
 
   function render() {
     slides.forEach((s, i) => s.classList.toggle('active', i === current));
-    slides.forEach((s, i) => {
-      if (s.id === 's5' && i !== current) s.dataset.stage = '0';
-      if (s.classList.contains('product-reveal') && i !== current) {
-        s.dataset.revealCount = '0';
-        s.querySelectorAll('.prod-card').forEach(card => card.classList.remove('revealed'));
-      }
-    });
     document.getElementById('counter').textContent = (current + 1) + ' / ' + slides.length;
     document.getElementById('prevBtn').disabled = current === 0;
     document.getElementById('nextBtn').disabled = current === slides.length - 1;
@@ -951,27 +950,6 @@
 
   imageZoom.addEventListener('click', (e) => {
     if (e.target === imageZoom || e.target.closest('button')) closeImageZoom();
-  });
-
-  document.getElementById('s5').addEventListener('click', (e) => {
-    const slide = e.currentTarget;
-    const stage = Number(slide.dataset.stage || 0);
-    if (stage < 2) {
-      slide.dataset.stage = String(stage + 1);
-      e.stopPropagation();
-    }
-  });
-
-  document.querySelectorAll('.product-reveal').forEach(slide => {
-    slide.addEventListener('click', (e) => {
-      const cards = [...slide.querySelectorAll('.prod-card')];
-      const count = Number(slide.dataset.revealCount || 0);
-      if (count < cards.length) {
-        cards[count].classList.add('revealed');
-        slide.dataset.revealCount = String(count + 1);
-        e.stopPropagation();
-      }
-    });
   });
 
   function scaleViewport() {
